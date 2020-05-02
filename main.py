@@ -1,10 +1,11 @@
 import arcade
 import os
 from player import PlayerCharacter
+from mouse import MousePointer
 
 # Constants
-SCREEN_WIDTH = 1024
-SCREEN_HEIGHT = 768
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
 SCREEN_TITLE = "Crafter"
 
 
@@ -24,6 +25,8 @@ class MyGame(arcade.Window):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
+        self.set_mouse_visible(False)
+
         self.lmb_pressed = False
 
         # These are 'lists' that keep track of our sprites. Each sprite should
@@ -32,6 +35,8 @@ class MyGame(arcade.Window):
 
         # Separate variable that holds the player sprite
         self.player_sprite = None
+
+        self.mouse_sprite = None
 
         # Set the background color
         arcade.set_background_color(arcade.color.BLACK)
@@ -44,6 +49,7 @@ class MyGame(arcade.Window):
 
         # Set up the player, specifically placing it at these coordinates.
         self.player_sprite = PlayerCharacter()
+        self.mouse_sprite = MousePointer()
 
         self.player_sprite.center_x = SCREEN_WIDTH / 2
         self.player_sprite.center_y = SCREEN_HEIGHT / 2
@@ -58,6 +64,7 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Draw our sprites
+        self.mouse_sprite.draw()
         self.player_list.draw()
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
@@ -68,6 +75,8 @@ class MyGame(arcade.Window):
             self.lmb_pressed = True
 
     def on_mouse_motion(self, x, y, dx, dy):
+        self.mouse_sprite.center_x = x
+        self.mouse_sprite.center_y = y
         if self.lmb_pressed:
             self.targetx = x
             self.targety = y
@@ -98,6 +107,7 @@ class MyGame(arcade.Window):
             self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
 
         # Call update to move the sprite
+        self.mouse_sprite.update()
         self.player_list.update()
         self.player_list.update_animation(delta_time)
 
