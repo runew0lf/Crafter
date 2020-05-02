@@ -9,8 +9,7 @@ SCREEN_TITLE = "Crafter"
 
 
 # Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 7
-
+PLAYER_MOVEMENT_SPEED = 5
 
 class MyGame(arcade.Window):
     """
@@ -25,14 +24,7 @@ class MyGame(arcade.Window):
         # Call the parent class and set up the window
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-        # Track the current state of what key is pressed
-        self.left_pressed = False
-        self.right_pressed = False
-        self.up_pressed = False
-        self.down_pressed = False
         self.lmb_pressed = False
-        self.targetx = 0
-        self.targety = 0
 
         # These are 'lists' that keep track of our sprites. Each sprite should
         # go into a list.
@@ -55,6 +47,8 @@ class MyGame(arcade.Window):
 
         self.player_sprite.center_x = SCREEN_WIDTH / 2
         self.player_sprite.center_y = SCREEN_HEIGHT / 2
+        self.targetx = self.player_sprite.center_x
+        self.targety = self.player_sprite.center_y
         self.player_list.append(self.player_sprite)
 
     def on_draw(self):
@@ -65,29 +59,6 @@ class MyGame(arcade.Window):
 
         # Draw our sprites
         self.player_list.draw()
-
-    def on_key_press(self, key, modifiers):
-        """Called whenever a key is pressed. """
-        if key == arcade.key.UP:
-            self.up_pressed = True
-        elif key == arcade.key.DOWN:
-            self.down_pressed = True
-        elif key == arcade.key.LEFT:
-            self.left_pressed = True
-        elif key == arcade.key.RIGHT:
-            self.right_pressed = True
-
-    def on_key_release(self, key, modifiers):
-        """Called when the user releases a key. """
-
-        if key == arcade.key.UP:
-            self.up_pressed = False
-        elif key == arcade.key.DOWN:
-            self.down_pressed = False
-        elif key == arcade.key.LEFT:
-            self.left_pressed = False
-        elif key == arcade.key.RIGHT:
-            self.right_pressed = False
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         """ Handle Mouse Clicks """
@@ -111,33 +82,20 @@ class MyGame(arcade.Window):
         self.player_sprite.change_x = 0
         self.player_sprite.change_y = 0
 
-        if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-        elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-        elif self.right_pressed and not self.left_pressed:
+        # Move Sprite to mouse location
+        if abs(self.player_sprite.center_x - self.targetx) < PLAYER_MOVEMENT_SPEED:
+            self.player_sprite.center_x = self.targetx
+        elif self.player_sprite.center_x < self.targetx:
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+        elif self.player_sprite.center_x > self.targetx:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
 
-        if self.lmb_pressed:
-            if abs(self.player_sprite.center_x - self.targetx) < PLAYER_MOVEMENT_SPEED:
-                self.player_sprite.center_x = self.targetx
-            elif self.player_sprite.center_x < self.targetx:
-                self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-            elif self.player_sprite.center_x > self.targetx:
-                self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
-                
-            if abs(self.player_sprite.center_y - self.targety) < PLAYER_MOVEMENT_SPEED:
-                self.player_sprite.center_y = self.targety
-            elif self.player_sprite.center_y < self.targety:
-                self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-            elif self.player_sprite.center_y > self.targety:
-                self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
-
-        else:
-            self.targety = 0
-            self.targetx = 0
+        if abs(self.player_sprite.center_y - self.targety) < PLAYER_MOVEMENT_SPEED:
+            self.player_sprite.center_y = self.targety
+        elif self.player_sprite.center_y < self.targety:
+            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+        elif self.player_sprite.center_y > self.targety:
+            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
 
         # Call update to move the sprite
         self.player_list.update()
