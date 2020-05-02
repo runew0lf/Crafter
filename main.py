@@ -1,87 +1,70 @@
-import os
-from player import Player
 import arcade
+import os
+from player import PlayerCharacter
 
+# Constants
 SCREEN_WIDTH = 1024
 SCREEN_HEIGHT = 768
 SCREEN_TITLE = "Crafter"
 
-MOVEMENT_SPEED = 5
-UPDATES_PER_FRAME = 7
 
+# Movement speed of player, in pixels per frame
+PLAYER_MOVEMENT_SPEED = 7
 
 class MyGame(arcade.Window):
     """
     Main application class.
     """
 
-    def __init__(self, width, height, title):
+    def __init__(self):
         """
-        Initializer
+        Initializer for the game
         """
 
-        # Call the parent class initializer
-        super().__init__(width, height, title)
-
-        # Variables that will hold sprite lists
-        self.player_list = None
-
-        # Set up the player info
-        self.player_sprite = None
+        # Call the parent class and set up the window
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
         # Track the current state of what key is pressed
         self.left_pressed = False
         self.right_pressed = False
         self.up_pressed = False
         self.down_pressed = False
+ 
+        # These are 'lists' that keep track of our sprites. Each sprite should
+        # go into a list.
+        self.player_list = None
+
+        # Separate variable that holds the player sprite
+        self.player_sprite = None
 
         # Set the background color
         arcade.set_background_color(arcade.color.AMAZON)
 
     def setup(self):
-        """ Set up the game and initialize the variables. """
+        """ Set up the game here. Call this function to restart the game. """
 
-        # Sprite lists
+        # Create the Sprite lists
         self.player_list = arcade.SpriteList()
 
-        # Set up the player
-        self.player_sprite = Player()
+        # Set up the player, specifically placing it at these coordinates.
+        self.player_sprite = PlayerCharacter()
+
         self.player_sprite.center_x = SCREEN_WIDTH / 2
         self.player_sprite.center_y = SCREEN_HEIGHT / 2
-
         self.player_list.append(self.player_sprite)
 
     def on_draw(self):
-        """
-        Render the screen.
-        """
+        """ Render the screen. """
 
-        # This command has to happen before we start drawing
+        # Clear the screen to the background color
         arcade.start_render()
 
-        # Draw all the sprites.
+        # Draw our sprites
         self.player_list.draw()
-
-    def on_update(self, delta_time):
-        """ Movement and game logic """
-
-        self.player_sprite.change_x = 0
-        self.player_sprite.change_y = 0
-
-        if self.up_pressed and not self.down_pressed:
-            self.player_sprite.change_y = MOVEMENT_SPEED
-        elif self.down_pressed and not self.up_pressed:
-            self.player_sprite.change_y = -MOVEMENT_SPEED
-        if self.left_pressed and not self.right_pressed:
-            self.player_sprite.change_x = -MOVEMENT_SPEED
-        elif self.right_pressed and not self.left_pressed:
-            self.player_sprite.change_x = MOVEMENT_SPEED
-        self.player_list.update()
 
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
-
         if key == arcade.key.UP:
             self.up_pressed = True
         elif key == arcade.key.DOWN:
@@ -93,6 +76,7 @@ class MyGame(arcade.Window):
 
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key. """
+
         if key == arcade.key.UP:
             self.up_pressed = False
         elif key == arcade.key.DOWN:
@@ -102,10 +86,28 @@ class MyGame(arcade.Window):
         elif key == arcade.key.RIGHT:
             self.right_pressed = False
 
+    def on_update(self, delta_time):
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
+        # Call update to move the sprite
+        self.player_list.update()
+        self.player_list.update_animation(delta_time)
+
 
 def main():
     """ Main method """
-    window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    window = MyGame()
     window.setup()
     arcade.run()
 
